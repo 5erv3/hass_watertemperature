@@ -1,0 +1,11 @@
+{
+    "domain": "watertemp_lake",
+    "name": "Watertemperature Sensor",
+    "codeowners": ["5erv3"],
+    "dependencies": [],
+    "documentation": "https://github.com/5erv3/hass_watertemperature",
+    "iot_class": "cloud_polling",
+    "requirements": ["beautifulsoup4",
+                        "requests"],
+    "version": "0.1.1"
+}
