@@ -1,11 +1,12 @@
 {
-    "domain": "watertemp_lake",
-    "name": "Watertemperature Sensor",
-    "codeowners": ["5erv3"],
-    "dependencies": [],
-    "documentation": "https://github.com/5erv3/hass_watertemperature",
-    "iot_class": "cloud_polling",
-    "requirements": ["beautifulsoup4",
-                        "requests"],
-    "version": "0.1.1"
+  "domain": "gkd_wassertemperatur",
+  "name": "GKD Bayern Wassertemperatur",
+  "version": "1.0.0",
+  "config_flow": true,
+  "documentation": "https://www.gkd.bayern.de",
+  "issue_tracker": "https://www.gkd.bayern.de",
+  "codeowners": [],
+  "dependencies": [],
+  "requirements": ["beautifulsoup4>=4.12.0"],
+  "iot_class": "cloud_polling"
 }

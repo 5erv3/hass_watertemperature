@@ -1,0 +1,29 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "GKD Bayern water temperature",
+        "description": "URL of the measurement table (…/messwerte/tabelle) of the desired station.",
+        "data": {
+          "name": "Name",
+          "url": "Measurement table URL",
+          "scan_interval": "Update interval (minutes)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Connection failed or request was rejected.",
+      "parse_error": "No valid measurement table found on the page."
+    },
+    "abort": {
+      "already_configured": "This station is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "data": { "scan_interval": "Update interval (minutes)" }
+      }
+    }
+  }
+}

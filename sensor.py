@@ -1,4 +1,4 @@
-"""Platform for sensor integration."""
+"""Sensor platform for GKD Bayern Wassertemperatur."""
 from __future__ import annotations
 
 from homeassistant.components.sensor import (
@@ -8,41 +8,49 @@ from homeassistant.components.sensor import (
 )
 from homeassistant.const import UnitOfTemperature
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
-import requests
-from bs4 import BeautifulSoup
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-def setup_platform(
+from . import GkdConfigEntry
+from .const import DOMAIN
+from .coordinator import GkdCoordinator
+
+
+async def async_setup_entry(
     hass: HomeAssistant,
-    config: ConfigType,
-    add_entities: AddEntitiesCallback,
-    discovery_info: DiscoveryInfoType | None = None
+    entry: GkdConfigEntry,
+    async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up the sensor platform."""
-    add_entities([WatertempSensor()])
+    """Set up the sensor from a config entry."""
+    async_add_entities([WatertempSensor(entry.runtime_data, entry)])
 
 
-class WatertempSensor(SensorEntity):
-    """Representation of a Sensor."""
+class WatertempSensor(CoordinatorEntity[GkdCoordinator], SensorEntity):
+    """Water temperature sensor."""
 
-    _attr_name = "Wassertemperatur Ammersee"
+    _attr_has_entity_name = True
+    _attr_name = None  # Entity übernimmt den Gerätenamen
     _attr_native_unit_of_measurement = UnitOfTemperature.CELSIUS
     _attr_device_class = SensorDeviceClass.TEMPERATURE
     _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_suggested_display_precision = 1
 
-    def update(self) -> None:
-        """Fetch new state data for the sensor.
+    def __init__(self, coordinator: GkdCoordinator, entry: GkdConfigEntry) -> None:
+        super().__init__(coordinator)
+        self._attr_unique_id = entry.entry_id
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, entry.entry_id)},
+            name=entry.title,
+            manufacturer="GKD Bayern",
+            entry_type=None,
+        )
 
-        This is the only method that should fetch new data for Home Assistant.
-        """
+    @property
+    def native_value(self) -> float | None:
+        return self.coordinator.data.value if self.coordinator.data else None
 
-        url = "https://www.gkd.bayern.de/de/seen/wassertemperatur/isar/stegen-16602008/messwerte/tabelle#"
-
-        response = requests.get(url)
-        soup = BeautifulSoup(response.text, 'html.parser')
-        table = soup.find('table')
-        rows = table.find_all('tr')
-        data = rows[1].find_all('td')[1].get_text(strip=True).replace(",",".")
-
-        self._attr_native_value = data
+    @property
+    def extra_state_attributes(self) -> dict[str, str | None]:
+        data = self.coordinator.data
+        return {"gemessen_am": data.timestamp if data else None}
